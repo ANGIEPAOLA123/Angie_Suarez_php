@@ -24,7 +24,7 @@ class Database {
     // "root" es el nombre de usuario de la base de datos.
     // "" es la contraseña del usuario (en este caso está vacía).
     // $options son las opciones de configuración definidas anteriormente.
-    $this->connection = new PDO("mysql:host=127.0.0.1;dbname=adso_2696521", "root", "", $options);
+    $this->connection = new PDO("mysql:host=127.0.0.1;dbname=angie", "angie_2696521", "2696521", $options);
 
     // Configura la conexión para que utilice el juego de caracteres UTF-8, asegurando que los datos se manejen correctamente en ese formato.
     $this->connection->exec("SET CHARACTER SET UTF8");

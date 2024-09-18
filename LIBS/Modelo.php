@@ -1,49 +1,86 @@
 <?php
 
-// Clase base llamada `Modelo` que se usa para interactuar con una tabla de la base de datos.
-// Esta clase está pensada para ser extendida por otras clases que representen modelos específicos.
+  class modelo{
+    protected $id;
+    protected $table;
+    protected $db;
 
-class Modelo {
+    public function __construct(
+      $id,
+      $table,
+      PDO $connection
+    )
+
+    {
+      $this->id = $id;
+      $this->table = $table;
+      $this->db = $connection;
+    }
+
+    public function getAll(){
+      $stm = $this->db->prepare("select * from {$this->table}");
+      $stm->execute();
+      return $stm->fetchAll();
+    }
+
+    public function getById($id){
+      $stm = $this->db->prepare("select * from {$this->table} where id = :id");
+      $stm ->bindValue(":id", $id);
+      $stm->execute();
+      return $stm->fetch();
+    }
+
+    public function store($data)
+    {
+      $sql = "INSERT INTO users (";
+
+      foreach ($data as $key => $value) {
+        if($value == '')continue;
+        $sql .= "{$key},";
+      }
+      $sql = trim($sql, ',');
+      $sql .= ") VALUES (";
+
+
+      foreach ($data as $key => $value) {
+        $sql .= ":{$key},";
+      }
+
+      $sql = trim($sql, ',');
+      $sql .= ")";
+
+      $stm = $this->db->prepare($sql);
+
+      foreach ($data as $key => $value) {
+        $stm -> bindValue (":{$key}", $value);
+      }
+
+      $stm->execute(); 
+    }
+    public function update($id, $data)
+    {
+      $sql = "UPDATE users SET ";
+      foreach ($data as $key => $value) {
+        $sql .= "{$key} = :{$key}, ";
+      }
+      $sql = trim($sql, ',');
+      $sql .= "WHERE id = :id";
+      $stm = $this->db->prepare($sql);
+      foreach ($data as $key => $value) {
+        $stm->bindValue(":{$key}" , $value) ;   
+        
+      }
+      $stm->bindValue(":id", $id);
+      $stm->execute();
+    }
+
+    public function delete($id){
+      $sql = "delete from users where id = :id";
+      $stm = $this ->db->prepare($sql);
+      $stm ->bindValue(":id", $id);
+      $stm->execute();
+    }
+  }
   
-  // Propiedades protegidas que almacenan el ID del registro, el nombre de la tabla, y la conexión a la base de datos.
-  protected $id;
-  protected $table;
-  protected $db;
-  
-  // Constructor de la clase. Se ejecuta automáticamente al crear una instancia de la clase.
-  // Recibe un ID, el nombre de la tabla y la conexión a la base de datos como parámetros.
-  public function __construct($id, $table, PDO $connection)
-  {
-    // Asigna los valores de los parámetros a las propiedades de la clase.
-    $this->id = $id;
-    $this->table = $table;
-    $this->db = $connection;
-  }
+?>
 
-  // Método para obtener todos los registros de la tabla asociada.
-  // Prepara y ejecuta una consulta SQL para seleccionar todos los registros de la tabla.
-  // Retorna el resultado como un array de todos los registros.
-  public function getAll(){
-    $stm = $this->db->prepare("SELECT * FROM {$this->table}");
-    $stm->execute();
-    return $stm->fetchAll();
-  }
-
-  // Método para obtener un registro específico de la tabla por su ID.
-  // Prepara una consulta SQL para seleccionar un registro donde el campo `id` coincida con el valor dado.
-  // Asigna el valor del ID al parámetro `:id` en la consulta y la ejecuta.
-  // Retorna el registro encontrado como un array asociativo.
-  public function getById($id){
-    $stm = $this->db->prepare("SELECT * FROM {$this->table} WHERE id = :id");
-    $stm->bindValue(":id", $id);
-    $stm->execute();
-    return $stm->fetch();
-  }
-
-  // Método incompleto para actualizar un registro en la tabla `users`.
-  // Intenta preparar una consulta SQL para actualizar el campo `nombre` donde el `id` coincida.
-  public function getUpdate($id){
-    $stm = $this->db->prepare("UPDATE users SET nombre = :nombre WHERE id = :id");
-    $stm->bindValue();
-  }
-}
